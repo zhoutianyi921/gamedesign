@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 南师美院·模拟人生</title>
+<style>
+/* ============ WEBFONT ============ */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&display=swap');
+
+/* ============ RESET ============ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ============ BODY — 国风水彩背景 ============ */
+body {
+  font-family: 'Noto Serif SC', 'STSong', 'SimSun', 'KaiTi', serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 25% 15%, rgba(160,210,170,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 72% 35%, rgba(130,185,150,0.28) 0%, transparent 50%),
+    radial-gradient(ellipse at 45% 70%, rgba(100,160,130,0.30) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 75%, rgba(70,120,90,0.18) 0%, transparent 40%),
+    linear-gradient(175deg, #eaf3e6 0%, #dcead5 18%, #cde0cc 40%, #c0d8c0 65%, #b0ccb4 100%);
+  background-attachment: fixed;
+}
+
+/* 水彩飞檐建筑纹理覆盖层 */
+body::before {
+  content: '';
+  position: fixed; 
+  inset: 0; 
+  z-index: 0; 
+  pointer-events: none;
+  
+  /* 引入目标背景图片 */
+  background-image: url('nanshida.png');
+  background-position: center bottom; /* 图片对齐方式，靠近底部对齐 */
+  background-repeat: no-repeat;
+  background-size: cover; /* 确保图片完美覆盖整个视口，不随拉伸变形 */
+  
+  /* 在这里自由微调透明度 (0.2 代表 20% 的不透明度，数值越小越淡) */
+  opacity: 0.25; 
+  
+  /* 加上轻微的混合模式，让背景图和原有的渐变底色融合得更自然 */
+  mix-blend-mode: multiply; 
+}
+/* 底部半透明白色艺术字体底纹 */
+body::after {
+  content: '设计师  毕业  企业家  艺术家';
+  position: fixed;
+  bottom: 6%; left: 50%;
+  transform: translateX(-50%) ;
+  font-size: clamp(36px, 7vw, 72px);
+  font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  color: rgba(255,255,255,0.25);
+  white-space: nowrap; pointer-events: none; z-index: 0;
+  letter-spacing: 18px; font-weight: 700;
+}
+
+/* ============ 左右两侧半透明人物立绘 (通用属性) ============ */
+.character-bg {
+  position: fixed;
+  bottom: 0;           /* 底部对齐 */
+  width: 42vw;         /* 微调宽度，两侧各占屏幕约 42%，留出中间黑板视觉通道 */
+  height: 85vh;        /* 高度占屏幕的 85% */
+  background-repeat: no-repeat;
+  background-size: contain; /* 确保人物形象等比例完整显示 */
+  
+  /* 核心：控制透明度与层级 */
+  opacity: 0.35;       /* 降低透明度为 35%[cite: 1]，你可以根据新图的深浅自由微调 */
+  z-index: 1;          /* 夹在背景之上，主体内容之下 */
+  pointer-events: none;/* 鼠标事件穿透，确保不影响左侧和右侧选项的点击 */
+  transition: all 0.3s ease;
+}
+
+/* 右侧立绘特有属性 (已有) */
+.character-right {
+  right: -5%;          
+  background-image: url('4717e35b-2132-4dd8-bd5f-d7abfd7484dd.png');
+  background-position: right bottom;
+}
+
+/* 新增：左侧立绘特有属性 */
+.character-left {
+  left: -5%;           /* 靠左侧显示，-5% 让人物边缘稍微出幅，更具呼吸感 */
+  /* ⚠️请把下面的 '你的左侧图片名.png' 替换为你实际的图片文件名 */
+  background-image: url('7d5e80e7-0f07-49dc-bf3b-fe93fe90dfe9.png'); 
+  background-position: left bottom;
+}
+
+/* 配合立绘微调主体层级，确保黑板永远在所有立绘前方 */
+.container {
+  z-index: 2 !important; 
+}
+
+/* ============ 主容器 ============ */
+.container {
+  width: 100%; max-width: 860px;
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 0 0 40px;
+}
+
+/* ============ 头部：箭头丝带标题栏 ============ */
+.header {
+  position: relative; z-index: 2;
+  width: fit-content; max-width: 520px;
+  margin: 0 auto 10px;
+  padding: 14px 44px 14px 36px;
+  background: linear-gradient(135deg, #2d7a5a 0%, #1a5c3e 50%, #134836 100%);
+  clip-path: polygon(
+    0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%,
+    12px 50%
+  );
+  -webkit-clip-path: polygon(
+    0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%,
+    12px 50%
+  );
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+}
+
+/* 左端深绿斜向装饰条纹 */
+.header::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 10px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #0d3324 0px, #0d3324 4px,
+    transparent 4px, transparent 8px
+  );
+  z-index: 1; pointer-events: none;
+}
+
+.header .title-main {
+  font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  font-size: 24px; font-weight: 400;
+  letter-spacing: 5px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+
+.header .campus-tag {
+  display: none;
+}
+
+.header::after { display: none; }
+
+/* ============ 游戏主体 ============ */
+.game-body {
+  position: relative; z-index: 1;
+  width: 100%;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+
+/* ============ 开场画面 ============ */
+#start-screen {
+  width: 100%;
+  display: flex; flex-direction: column;
+  align-items: center;
+  color: #3a2f1f;
+}
+#start-screen .logo { display: none; }
+#start-screen h2 {
+  font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+  font-size: 22px; color: #134836;
+  margin: 6px 0 2px; letter-spacing: 4px;
+}
+#start-screen .subtitle {
+  color: #5a7a5a; font-size: 13px;
+  margin-bottom: 20px; letter-spacing: 3px;
+}
+
+/* ============ 木质告示牌 ============ */
+.intro-story {
+  position: relative;
+  width: 100%; max-width: 680px;
+  background:
+    radial-gradient(ellipse at 50% 50%, #1a5c3e 0%, #134836 40%, #0d3324 100%);
+  border: 10px solid #6b4e3d;
+  border-radius: 6px;
+  padding: 28px 32px 24px;
+  margin: 0 auto 5px;
+  text-align: left;
+  font-size: 13.5px;
+  color: #e8e8d5;
+  line-height: 2.1;
+  letter-spacing: 1px;
+  box-shadow:
+    0 8px 30px rgba(0,0,0,0.5),
+    inset 0 0 40px rgba(0,0,0,0.35);
+  z-index: 1;
+}
+
+/* 四角交错木条 */
+.intro-story::before,
+.intro-story::after {
+  content: ''; position: absolute;
+  width: 32px; height: 32px;
+  background: #8b6b4e;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+.intro-story::before { top: -16px; left: -16px; transform: rotate(15deg); }
+.intro-story::after  { top: -16px; right: -16px; transform: rotate(-15deg); }
+
+.intro-story strong {
+  color: #d4c090; letter-spacing: 1px; font-weight: 600;
+}
+
+/* 四角铆钉 — 使用四个内联元素 */
+.board-rivet {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: radial-gradient(circle at 35% 30%, #f5f5f0 0%, #c8c0b0 60%, #8a7a6a 100%);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,0.7),
+    0 2px 4px rgba(0,0,0,0.5);
+  z-index: 3;
+}
+
+/* 第二个交叉角装饰 */
+.corner-wood {
+  position: absolute;
+  width: 32px; height: 32px;
+  background: #8b6b4e;
+  border-radius: 2px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+
+/* ============ 专业选择卡片网格 ============ */
+.major-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  width: 100%; max-width: 680px;
+  margin: 28px 0 6px;
+  z-index: 1;
+}
+
+.major-btn {
+  padding: 14px 10px;
+  border: 2px solid #134836;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fffef9 0%, #f8f4ea 100%);
+  color: #3a2f1f;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  font-family: inherit;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.major-btn:hover {
+  transform: translateY(-5px);
+  border-color: #d4b878;
+  box-shadow: 0 8px 24px rgba(180,140,80,0.35), 0 0 0 3px rgba(212,184,120,0.25);
+  background: linear-gradient(180deg, #fffef9 0%, #fef9e8 100%);
+}
+
+.major-btn.selected {
+  border-color: #b89460;
+  border-width: 3px;
+  background: linear-gradient(180deg, #fef9e8 0%, #fdf3d0 100%);
+  box-shadow: 0 0 20px rgba(212,184,120,0.55), 0 4px 12px rgba(0,0,0,0.18);
+  transform: translateY(-3px);
+}
+
+.major-btn .icon {
+  font-size: 28px; display: block; margin-bottom: 6px;
+}
+.major-btn .name {
+  font-weight: 700; color: #134836;
+  font-size: 14px; letter-spacing: 1px;
+}
+.major-btn .desc {
+  font-size: 10px; color: #8a7a6a;
+  margin-top: 4px; display: block;
+}
+
+/* ============ 底部主按钮优化（使用自定义图片） ============ */
+.start-btn {
+  position: relative;
+  /* 1. 根据你的图片比例设置按钮的宽高 */
+  width: 320px;   
+  height: 96px;   
+  
+  /* 2. 引入你做好的精美图片 */
+  background-image: url('start2.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent; /* 清除默认背景色 */
+  
+  /* 3. 清除原按钮的默认边框和样式 */
+  border: none;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  clip-path: none;          /* 清除原先代码的六边形裁切 */
+  -webkit-clip-path: none;
+  
+  /* 4. 隐藏 HTML 自带的“选 择”文本，只显示图片里的字 */
+  color: transparent;
+  font-size: 0;
+  
+  /* 5. 动画过渡与层级 */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 2;
+}
+
+/* 清除老代码自带的伪元素干扰 */
+.start-btn::before,
+.start-btn::after { 
+  display: none !important; 
+}
+
+/* 6. 鼠标悬停态（Hover）：加入现代游戏 UI 的微缩放和外发光增强效果 */
+.start-btn:hover:not(:disabled) {
+  transform: scale(1.05); /* 轻微放大 1.05 倍，极具交互反馈感 */
+  /* 给你的金色勾边外侧加上一层淡淡的金色圣光层 */
+  filter: drop-shadow(0 0 12px rgba(246, 222, 131, 0.6)); 
+}
+
+/* 7. 点击态（Active）：模拟真实按钮被按下去的物理视觉 */
+.start-btn:active:not(:disabled) {
+  transform: scale(0.98); /* 按下时轻微缩小 */
+  filter: drop-shadow(0 0 4px rgba(246, 222, 131, 0.4));
+}
+
+/* 8. 禁用态（Disabled）：当玩家还没选择专业时，按钮自动变灰变透明 */
+.start-btn:disabled {
+  cursor: not-allowed;
+  pointer-events: none; /* 防止被点击 */
+  opacity: 0.5;         /* 半透明 */
+  filter: grayscale(0.85); /* 核心：自动将你的彩色图片转为高级的灰色，提示不可点[cite: 1] */
+}
+
+/* 激活态呼吸灯光晕 */
+.start-btn:not(:disabled)::before {
+  animation: sweepLight 3s infinite;
+}
+@keyframes sweepLight {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
+@keyframes breatheGold {
+  0%, 100% { box-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 0 0 4px rgba(232,200,64,0.2), 0 0 16px rgba(232,200,64,0.25); }
+  50% { box-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 0 0 4px rgba(232,200,64,0.45), 0 0 32px rgba(232,200,64,0.55); }
+}
+
+/* ============ 游戏面板 ============ */
+#game-screen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+.hud-area { width: 100%; max-width: 680px; }
+
+.stats-bar {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  background: rgba(19,72,54,0.12);
+  border: 1px solid rgba(19,72,54,0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+.stat-item { flex: 1; min-width: 50px; text-align: center; }
+.stat-item .label { font-size: 10px; color: #5a7a5a; display: block; letter-spacing: 1px; }
+.stat-item .value {
+  font-size: 18px; font-weight: 700;
+  color: #134836;
+  display: inline-block;
+  transition: all .4s cubic-bezier(.34,1.56,.64,1);
+}
+.stat-item .value.pulse {
+  transform: scale(1.4);
+  color: #b89460;
+  text-shadow: 0 0 10px rgba(184,148,96,0.8);
+}
+.stat-bar {
+  width: 100%; height: 4px;
+  background: rgba(19,72,54,0.1);
+  border-radius: 2px; margin-top: 4px; overflow: hidden;
+}
+.stat-bar-inner {
+  height: 100%; border-radius: 2px; transition: width .6s ease;
+}
+
+.progress-bar-wrap {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 15px;
+}
+.progress-bar-wrap .q-num { font-size: 12px; color: #5a7a5a; }
+.progress-bar-wrap .q-num strong { color: #134836; font-size: 16px; }
+.progress-track {
+  flex: 1; height: 5px;
+  background: rgba(19,72,54,0.1);
+  border-radius: 3px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4b878, #8a6a40);
+  border-radius: 3px;
+  transition: width .5s ease;
+  box-shadow: 0 0 8px rgba(184,148,96,0.3);
+}
+
+.major-badge {
+  display: inline-block; padding: 6px 16px;
+  background: rgba(19,72,54,0.08);
+  border: 1px solid rgba(19,72,54,0.25);
+  border-radius: 20px; font-size: 12px; color: #134836;
+  margin-bottom: 28px; letter-spacing: 1px;
+}
+.major-badge .season { color: #5a7a5a; margin-left: 8px; }
+
+/* ============ 选项按钮区 ============ */
+.option-list {
+  display: flex; flex-direction: column;
+  gap: 10px;
+  margin: 10px 0 24px;
+  width: 100%; max-width: 680px;
+}
+.option-btn {
+  position: relative;
+  padding: 16px 24px;
+  background: rgba(255, 254, 249, 0.85); /* 引入微毛玻璃质感 */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(19, 72, 54, 0.12); /* 细化边框，降低视觉噪音 */
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-align: left;
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #3a2f1f;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+.option-btn:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  border-color: rgba(212, 184, 120, 0.5);
+  box-shadow: 0 8px 24px rgba(184, 148, 96, 0.15);
+}
+.option-btn .opt-label {
+  font-weight: 700; font-size: 14px;
+  color: #8a6a40;
+  font-family: 'Georgia', serif;
+  min-width: 22px;
+}
+.option-btn.selected {
+  border-color: #d4b878;
+  background: linear-gradient(90deg, #fffef9 0%, #EFE1B4 100%);
+  box-shadow: 0 4px 20px rgba(212, 184, 120, 0.25);
+  /* 使用带有弹性系数的贝塞尔曲线，让选中瞬间更有 Q 弹的质感 */
+  animation: optSelect 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ============ 底部对话框 ============ */
+.q-area {
+  margin-bottom: 16px;
+  position: relative;
+  background: #134836;
+  border: 2px solid #6b4e3d;
+  border-radius: 8px;
+  padding: 24px 28px;
+  box-shadow:
+    0 5px 20px rgba(0,0,0,0.4),
+    inset 0 0 20px rgba(0,0,0,0.25);
+  width: 100%; max-width: 680px;
+}
+.q-area::before {
+  content: ''; position: absolute;
+  top: 4px; left: 4px; right: 4px; bottom: 4px;
+  border: 1px solid rgba(212,184,120,0.2);
+  pointer-events: none;
+}
+.q-title {
+  position: absolute;
+  top: -14px; left: 20px;
+  background: linear-gradient(135deg, #b89460, #7a5a3a);
+  padding: 4px 16px;
+  border-radius: 4px;
+  font-family: 'ZCOOL XiaoWei', serif;
+  font-size: 15px; font-weight: 600; color: #fff;
+  letter-spacing: 2px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+}
+.q-context {
+  font-size: 14px; color: #e8e0d0; line-height: 2;
+  letter-spacing: 1px; margin-top: 6px;
+}
+
+/* ============ 继续按钮优化（适配 jixu.png） ============ */
+.next-btn {
+  display: block;
+  /* 1. 核心适配：根据 jixu.png 的长条胶囊比例，设定完美的宽度与高度 */
+  width: 100%;
+  max-width: 380px;      /* 配合长条设计，拉宽按钮，使其与黑板对白框等宽、更有视觉张力 */
+  height: 52px;          /* 匹配长条比例的完美高度 */
+  margin: 28px auto 0 auto; /* 居中对齐，并与上方的选项按钮拉开舒适距离 */
+  
+  /* 2. 引入你的胶囊按钮图片 */
+  background-image: url('jixu.png');
+  background-size: contain;   /* 确保图片在框内等比例缩放，绝对不裁剪、不拉伸变形 */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent; /* 清除所有原有的半透明背景色 */
+  
+  /* 3. 彻底清除原本默认的边框和多余样式 */
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  
+  /* 4. 隐藏 HTML 标签里多余的自带“继续”文字 */
+  color: transparent;
+  font-size: 0;
+  
+  /* 5. 交互缓动曲线 */
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* 6. 悬停交互（Hover）：配合玉石绿材质，鼠标放上去时施加微缩放与翡翠般的莹润外发光 */
+.next-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.015); /* 长条按钮不宜放大过多，1.015 倍最显沉稳高级 */
+  /* 精准顺着胶囊轮廓，散发出一圈淡淡的玉石绿/白色复合呼吸光晕 */
+  filter: drop-shadow(0 4px 12px rgba(118, 150, 131, 0.5)) drop-shadow(0 0 4px rgba(255,255,255,0.3)); 
+}
+
+/* 7. 点击交互（Active）：按下去瞬间产生轻微物理下沉反馈 */
+.next-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+  filter: drop-shadow(0 2px 6px rgba(118, 150, 131, 0.3));
+}
+
+/* 8. 禁用交互（Disabled）：当玩家还没点选任何答案时，按钮自动变成低调内敛的半透明水墨色 */
+.next-btn:disabled { 
+  opacity: 0.45;            /* 降低透明度至 45%，完美隐入背景 */
+  filter: grayscale(0.5) contrast(0.9); /* 自动削弱色彩饱和度，提示当前不可触发 */
+  cursor: not-allowed;      /* 鼠标指针变为禁止符号 */
+  pointer-events: none;     /* 彻底锁死点击事件 */
+  transform: none;          /* 禁用状态下取消一切交互动画 */
+}
+
+/* ============ 结局结算页面总外壳 ============ */
+.ending-container, .result-screen {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important; /* 强制所有子元素水平居中对齐 */
+  justify-content: center !important;
+  width: 100% !important;
+  max-width: 720px !important;    /* 限制最大宽度，使其在左右两个立绘中间形成完美的视觉通道 */
+  margin: 0 auto !important;      /* 强制全局居中 */
+  padding: 30px 24px !important;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 3;                     /* 确保图层压在半透明立绘之上 */
+}
+
+/* ============ 1. 对应你的 .result-stats (属性卡片组的父容器) ============ */
+.result-stats {
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 12px;           /* 稍微拉开格子之间的间距（从8px调到12px） */
+  margin: 20px 0;      /* 增大上下外边距 */
+  width: 100%; 
+  max-width: 680px;
+}
+
+/* ============ 2. 对应你的 .result-stat (单个属性小格子画框) ============ */
+.result-stat {
+  /* 核心修改：大幅拉高显色度，改为 92% 不透明度的温润象牙白 */
+  background: rgba(255, 255, 255, 0.92) !important; 
+  /* 强化边框线，改为高对比度的墨绿线 */
+  border: 1px solid rgba(19, 72, 54, 0.3) !important;
+  border-radius: 12px; /* 稍微圆润一点更现代 */
+  padding: 16px 8px;   /* 微调内边距 */
+  /* 增加柔和阴影，让卡片立起来 */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+/* 对应你的属性名（如：学业、实践） */
+.result-stat .rs-label { 
+  font-size: 11px;     /* 字号微调大1px */
+  color: #556b60;      /* 改为更有生机的深国风绿灰 */
+  letter-spacing: 1px; 
+}
+
+/* 对应你的属性数值（如：16、14） */
+.result-stat .rs-value { 
+  font-size: 24px;     /* 数值放大，更具冲击力 */
+  font-weight: 700; 
+  margin-top: 6px; 
+  color: #134836;      /* 强制数值使用华丽的深翡翠绿 */
+}
+
+
+/* ============ 3. 对应你的 .result-desc (中间大段剧情文本框) ============ */
+.result-desc {
+  /* 核心修改：改为 88% 不透明度的温暖纸张感底色，彻底告别看不清 */
+  background: rgba(255, 254, 249, 0.88) !important;
+  /* 强化精致边框 */
+  border: 1px solid rgba(19, 72, 54, 0.25) !important;
+  border-radius: 16px;
+  padding: 24px 28px; 
+  margin: 16px 0;
+  text-align: left; 
+  line-height: 1.9;    /* 行高微调，极度适合剧情阅读 */
+  font-size: 15px;     /* 字号提升到 15px */
+  color: #2c3e35;      /* 字色加深为水墨浓绿，大幅提升阅读舒适度 */
+  width: 100%; 
+  max-width: 680px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ============ 4. 对应你的 .history-panel (四年回顾滚动框) ============ */
+.history-panel {
+  margin: 16px 0; 
+  padding: 20px 24px;
+  /* 核心修改：改为与剧情框呼应的高显色度底色 */
+  background: rgba(255, 254, 249, 0.88) !important;
+  border: 1px solid rgba(19, 72, 54, 0.25) !important;
+  border-radius: 16px;
+  text-align: left; 
+  font-size: 13.5px;   /* 字号稍微放大，方便阅读回顾 */
+  color: #3d4f45;      /* 回顾文字加深 */
+  line-height: 2.0; 
+  height: 160px;       /* 高度稍微拉高一点点 */
+  overflow-y: auto;
+  width: 100%; 
+  max-width: 680px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+/* 对应你的四年回顾里面的粗体字/小标题 */
+.history-panel strong { 
+  color: #134836;      /* 标志性的深翡翠绿 */
+  letter-spacing: 2px; 
+  font-size: 14px; 
+}
+
+/* 对应你的滚动条样式（保持原有的优秀精致设计，微调颜色） */
+.history-panel::-webkit-scrollbar { width: 6px; }
+.history-panel::-webkit-scrollbar-thumb { 
+  background: rgba(19,72,54,0.4); /* 滚动条滑块颜色稍微加深，更明显 */
+  border-radius: 3px; 
+}
+
+/* ============ 游戏结尾重启按钮（使用 restart.png） ============ */
+.restart-btn {
+  position: relative;
+  /* 1. 完美适配图片长宽比例 */
+  width: 320px;   
+  height: 96px;   
+  margin: 20px auto 20px auto; /* 居中对齐，并与上方结算文字拉开 20px 舒适间距 */
+  display: block;
+  
+  /* 2. 引入你做好的“再来一世”精美图片 */
+  background-image: url('restart.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent; /* 清除默认按钮背景 */
+  
+  /* 3. 彻底清除原本默认的边框和裁切样式 */
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  clip-path: none;
+  -webkit-clip-path: none;
+  
+  /* 4. 隐藏 HTML 标签自带的“开启新人生”文本，完全展示图片上的字 */
+  color: transparent;
+  font-size: 0;
+  
+  /* 5. 丝滑交互动画过渡 */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 2;
+}
+
+/* 清除老代码中可能存在的干扰伪元素 */
+.restart-btn::before,
+.restart-btn::after { 
+  display: none !important; 
+}
+
+/* 6. 悬停交互样式（Hover）：鼠标移上去时触发微缩放与华丽的金色外发光 */
+.restart-btn:hover {
+  transform: scale(1.05); /* 轻微放大 1.05 倍，提升物理触感 */
+  /* 顺着图片的星星和金边轮廓，散发出一圈淡淡的金色圣光层 */
+  filter: drop-shadow(0 0 12px rgba(246, 222, 131, 0.65)); 
+}
+
+/* 7. 点击交互样式（Active）：点击瞬间产生轻微的机械下沉反馈 */
+.restart-btn:active {
+  transform: scale(0.98); /* 按下时轻微缩小 */
+  filter: drop-shadow(0 0 4px rgba(246, 222, 131, 0.4));
+}
+
+/* ============ 动画 ============ */
+.fade-in { animation: pageFadeIn .6s ease forwards; }
+@keyframes pageFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes optSelect { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+/* ============ 底部提示 ============ */
+.tip { text-align: center; font-size: 11px; color: rgba(19,72,54,0.5); margin-top: 16px; letter-spacing: 3px; }
+
+/* ============ 响应式 ============ */
+@media (max-width: 640px) {
+  body { padding: 10px; }
+  .header .title-main { font-size: 18px; letter-spacing: 3px; }
+  .header { max-width: 90%; padding: 12px 28px 12px 24px; }
+  .major-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .intro-story { padding: 20px 18px; font-size: 12px; }
+  .option-btn { padding: 12px 14px; font-size: 13px; }
+  .q-area { padding: 18px 16px; }
+  .q-title { top: -12px; font-size: 13px; padding: 3px 10px; }
+  .q-context { font-size: 13px; }
+  .result-stats { grid-template-columns: repeat(2,1fr); }
+  .start-btn { padding: 12px 50px; font-size: 16px; }
+}
+/* 全屏鼠标特效层 */
+#clickSparkCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* 💡 关键：让鼠标点击能够穿透过去，不影响你玩游戏选选项 */
+  z-index: 99999;       /* 确保火花飘在最上层 */
+  display: block;
+  user-select: none;
+}
+</style>
+</head>
+<body>
+  <!-- 鼠标点击特效图层 -->
+<canvas id="clickSparkCanvas"></canvas>
+<div class="character-bg character-right"></div>
+<div class="character-bg character-left"></div>
+<div class="container" id="app">
+  <div class="header">
+    <div class="title-main">南师美院 · 模拟人生</div>
+  </div>
+  <div class="game-body">
+
+    <!-- START -->
+    <div id="start-screen" class="fade-in">
+      <h2>你的故事，从仙林开始</h2>
+      <p class="subtitle">南京师范大学美术学院 · 2022级新生</p>
+      <div class="intro-story" id="notice-board">
+        <div class="corner-wood" style="top:-16px;left:-16px;transform:rotate(15deg);"></div>
+        <div class="corner-wood" style="top:-16px;right:-16px;transform:rotate(-15deg);"></div>
+        <div class="corner-wood" style="bottom:-16px;left:-16px;transform:rotate(-15deg);"></div>
+        <div class="corner-wood" style="bottom:-16px;right:-16px;transform:rotate(15deg);"></div>
+        <div class="board-rivet" style="top:-7px;left:-7px;"></div>
+        <div class="board-rivet" style="top:-7px;right:-7px;"></div>
+        <div class="board-rivet" style="bottom:-7px;left:-7px;"></div>
+        <div class="board-rivet" style="bottom:-7px;right:-7px;"></div>
+        九月，你拖着行李箱走进了"东方最美校园"的另一校区——<strong>南京师范大学仙林校区</strong>。<br>
+        梧桐树影斑驳，红柱灰墙的建筑群静静矗立，这座曾属于<strong>金陵女子大学</strong>的百年学府，
+        即将成为你艺术生涯的起点。<br><br>
+        美术学院的大楼在100号楼深处，你深吸一口气——<br>
+        大学四年，会把你塑造成怎样的人？
+      </div>
+      <div class="major-grid" id="major-select"></div>
+      <button class="start-btn" id="start-btn" disabled>选 择</button>
+    </div>
+
+    <!-- GAME -->
+    <div id="game-screen" style="display:none">
+      <div class="hud-area">
+        <div class="stats-bar" id="stats-bar"></div>
+        <div class="progress-bar-wrap">
+          <span class="q-num"><strong id="q-num">1</strong>/20</span>
+          <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:5%"></div></div>
+        </div>
+        <div class="major-badge" id="major-badge"></div>
+      </div>
+      
+      <div class="q-area" id="q-area">
+        <div class="q-title" id="q-title"></div>
+        <div class="q-context" id="q-context"></div>
+      </div>
+
+      <!-- 将选项区放在对话框上方，更符合橙光视觉布局 -->
+      <div class="option-list" id="option-list"></div>
+
+      <button class="next-btn" id="next-btn" disabled>继续 →</button>
+      
+      <div class="tip">💡 按键盘 1-4 快速选择 · Enter 继续</div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result-screen" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const MAJORS = [
+  { id:'art-edu', name:'美术师范', icon:'🍎', desc:'传道授业，培育下一代', color:'#e8a87c' },
+  { id:'fine-art', name:'纯艺',     icon:'🎨', desc:'自由创作，纯粹表达', color:'#d4b878' },
+  { id:'product', name:'产品设计',  icon:'📱', desc:'以人为本，设计生活', color:'#7eb8a0' },
+  { id:'visual',  name:'视觉传达',  icon:'🎯', desc:'视觉语言，沟通故事', color:'#b895c9' },
+  { id:'cross-media', name:'跨媒体',icon:'🌈', desc:'数字边界，实验艺术', color:'#6db4c9' },
+  { id:'environment', name:'环境设计',icon:'🌿', desc:'空间营造，环境对话', color:'#8fc9a8' }
+];
+
+const STAT_META = {
+  academic:{label:'📚 学业',color:'#4a90d9'},
+  practice:{label:'💼 实践',color:'#e8856b'},
+  major:{label:'🎯 专业',color:'#d4b878'},
+  social:{label:'👥 社交',color:'#7eb8a0'},
+  vision:{label:'🌏 眼界',color:'#b895c9'},
+  will:{label:'💪 意志',color:'#6db4c9'},
+  wealth:{label:'💰 财力',color:'#e8a87c'}
+};
+const LABELS = ['A','B','C','D'];
+
+function initStats(mid) {
+  const b = {academic:5,practice:5,major:5,social:5,vision:5,will:5,wealth:5};
+  const bonus = {
+    'art-edu':{academic:2,social:1,major:1},
+    'fine-art':{major:2,vision:2,will:1},
+    'product':{practice:2,major:1,vision:1},
+    'visual':{practice:2,vision:1,social:1},
+    'cross-media':{vision:2,major:1,practice:1},
+    'environment':{practice:2,academic:1,vision:1}
+  };
+  Object.entries(bonus[mid]||{}).forEach(([k,v])=>b[k]+=v);
+  return b;
+}
+
+// ===================== QUESTIONS =====================
+const Q = {
+  shared: [
+    // Q1
+    {
+      ctx:'🏛️ 九月初，广乐楼·美院新生见面会。葛逸君站在讲台上，目光落在你身上："用一句话，说说你对艺术的理解。"',
+      q:'你会怎么回答？',
+      opts:[
+        {text:'"艺术是表达内心最真实的声音"', eff:{academic:2,vision:1}},
+        {text:'"我想用设计思维去解决真实世界的问题"', eff:{practice:2,major:1}},
+        {text:'"还在探索中，希望在美院找到属于自己的方向"', eff:{social:1,vision:1,will:1}},
+        {text:'"美是多元的，我想尝试一切可能性"', eff:{vision:2,major:1}}
+      ]
+    },
+    // Q2
+    {
+      ctx:'🏛️ 新生参观美院——这座曾属于金陵女子大学的建筑群红柱灰墙、回廊幽深。阳光透过梧桐叶洒在青砖地上。',
+      q:'哪个角落最吸引你？',
+      opts:[
+        {text:'传统画室——松节油的气味和百年窗棂透进的光', eff:{major:2,academic:1}},
+        {text:'数字媒体实验室——最新设备让你跃跃欲试', eff:{practice:1,vision:2}},
+        {text:'美院资料室——从《历代名画记》到当代前沿理论', eff:{academic:2,vision:1}},
+        {text:'二楼展厅——学长学姐的获奖作品挂满整面墙', eff:{major:1,will:1,vision:1}}
+      ]
+    },
+    // Q3
+    {
+      ctx:'📖 敬文图书馆泡了一整个下午后，第一堂专业课——老师让大家画一幅"自画像"。',
+      q:'你从哪个角度入手？',
+      opts:[
+        {text:'写实精细，用素描功底展现最真实的自己', eff:{academic:2,will:1}},
+        {text:'抽象表现，用色彩和笔触传达当下的情绪', eff:{vision:2,major:1}},
+        {text:'结合数字媒介，做一幅动态影像自画像', eff:{practice:2,major:1}},
+        {text:'致敬一位大师的风格，再进行自我再创作', eff:{academic:1,vision:1,major:1}}
+      ]
+    },
+    // Q4
+    {
+      ctx:'🖼️ 美院双年展在采月湖畔的美术馆开幕。全院优秀作品集中展出，连外校都有人专程来看。',
+      q:'你的看展状态是——',
+      opts:[
+        {text:'认真看每一件作品，用备忘录记下灵感和感悟', eff:{academic:2,vision:1}},
+        {text:'约上朋友一起逛，边看边讨论边拍照', eff:{social:2,practice:1}},
+        {text:'主动和参展作者交流，讨教创作思路和技法', eff:{social:2,major:1}},
+        {text:'暗下决心：明年双年展，我的作品也要挂在这里', eff:{will:2,major:1}}
+      ]
+    },
+    // Q5
+    {
+      ctx:'🍂 梧桐叶飘落在长椅上，你在仙林的长廊里摊开英语书。四六级报名开始了——留学的念头也在心里冒了芽。',
+      q:'你的语言学习策略是？',
+      opts:[
+        {text:'制定严格计划，每天打卡背单词刷真题', eff:{academic:2,will:1}},
+        {text:'直接报雅思/托福班，目标明确为留学铺路', eff:{vision:2,academic:1}},
+        {text:'先考四级看看水平，六级随缘不急', eff:{academic:1}},
+        {text:'艺术生学什么洋文？专业够强才是硬道理', eff:{major:1,will:-1}}
+      ]
+    },
+    // Q6
+    {
+      ctx:'😔 德风园的石凳上，你坐了很久。导师那句"缺乏灵魂"的评语还在耳边回响——第一次评图课，你被当众批评了。',
+      q:'你如何应对？',
+      opts:[
+        {text:'虚心接受，课后反复修改直到自己满意为止', eff:{will:2,major:2}},
+        {text:'当放屁坚持自己的风格——艺术本就没有标准答案', eff:{will:2,vision:1}},
+        {text:'找学长学姐取经，了解老师的审美偏好和评分标准', eff:{social:2,practice:1}},
+        {text:'钻进资料室，从大师作品里寻找新的灵感', eff:{academic:1,vision:1,major:1}}
+      ]
+    },
+    // Q7
+    {
+      ctx:'🌙 回到宿舍，推开门——室敌又在打游戏外放，而你的效果图还没画完。已经第十次了。',
+      q:'你如何处理？',
+      opts:[
+        {text:'坦诚沟通，心平气和地一起制定宿舍公约', eff:{social:2,will:1}},
+        {text:'买降噪耳机，去美院通宵工作室做作品', eff:{will:2,major:1}},
+        {text:'找辅导员申请调换宿舍', eff:{practice:1}},
+        {text:'逼自己适应环境，在嘈杂中练出专注力', eff:{will:3}}
+      ]
+    },
+    // Q8
+    {
+      ctx:'💕 西山图书馆三楼艺术区。你伸手去拿《艺术的故事》，另一只手也同时握住了书脊。四目相对——',
+      q:'你会怎么做？',
+      opts:[
+        {text:'"你也喜欢这本书？" —— 主动开口加微信', eff:{social:2}, trig:'love'},
+        {text:'心跳加速但默默收回手，把这份悸动画进作品里', eff:{major:1,will:1}},
+        {text:'礼貌让给对方，自己去别的书架看看', eff:{academic:1,social:1}},
+        {text:'偷偷记下TA的样子，发朋友圈问"有人认识吗"', eff:{social:1,practice:1}}
+      ]
+    },
+    // Q9
+    {
+      ctx:'📋 大二下学期，转专业申请窗口打开了。你站在敬文图书馆门口，看着来来往往的同学——',
+      q:'你的决定是？',
+      opts:[
+        {text:'坚定留在原专业——行行出状元，深耕下去', eff:{will:2,major:1}},
+        {text:'转入纯艺方向——追随内心对艺术的纯粹热爱', eff:{vision:2,major:1}, trig:'major-fine'},
+        {text:'转入设计方向（视传/产品）——为就业多一份保障', eff:{practice:2,major:1}, trig:'major-design'},
+        {text:'不转专业，但开始辅修第二领域', eff:{academic:1,vision:1,practice:1}}
+      ]
+    },
+    // Q10
+    {
+      ctx:'✈️ 留学还是国内发展？你坐在采月湖边的长椅上，看着湖面倒映的百年建筑，认真思考这个问题。',
+      q:'你对未来的规划偏向——',
+      opts:[
+        {text:'英美顶级院校——罗德岛/UAL/帕森斯，世界顶尖', eff:{vision:2,wealth:-2}, trig:'abroad-usuk'},
+        {text:'欧洲大陆——意/法/德，感受古典艺术的底蕴', eff:{vision:3,wealth:-2}, trig:'abroad-eu'},
+        {text:'日韩方向——东方美学的另一种可能性', eff:{vision:2,wealth:-1}, trig:'abroad-asia'},
+        {text:'留在国内——考研或就业，稳扎稳打也很好', eff:{practice:2,will:1}, trig:'domestic'}
+      ]
+    }
+  ],
+
+  // Standard path (non-fine-art)
+  standard: [
+    // Q11
+    {
+      ctx:'☀️ 大二暑假，仙林体育馆旁树林的蝉鸣声里，你摊开日历——两个月的时间，不能浪费。',
+      q:'你的暑假计划是——',
+      opts:[
+        {text:'参加国际暑期艺术工作坊，和不同背景的人碰撞灵感', eff:{major:2,vision:2}},
+        {text:'找一家设计公司或画廊实习，提前感受职场', eff:{practice:2,major:1}},
+        {text:'闭关创作，集中精力打磨作品集', eff:{major:2,will:2}},
+        {text:'去西部采风写生，一路走一路画', eff:{vision:2,major:1}}
+      ]
+    },
+    // Q12
+    {
+      ctx:'📂 作品集——艺术生的"第二张脸"。你看着电脑里零零散散的文件，决定——',
+      q:'你的作品集策略是？',
+      opts:[
+        {text:'求精不求多，每一件作品反复打磨到极致', eff:{major:2,will:2}},
+        {text:'求广求新，展示风格和媒介的多样性', eff:{major:1,vision:1,practice:1}},
+        {text:'兼顾个人风格与商业价值，两条腿走路', eff:{major:2,practice:2}},
+        {text:'不太着急，等毕业设计时一起做也来得及', eff:{academic:1,will:-1}}
+      ]
+    },
+    // Q13
+    {
+      ctx:'🏆 导师找到你，在国际青年艺术大赛的推荐表上写下了你的名字。这是一个走向国际舞台的机会。',
+      q:'你的态度是——',
+      opts:[
+        {text:'全力以赴备赛，这是让作品被看到的最好机会', eff:{major:2,vision:2}},
+        {text:'有点担心水平不够，但还是硬着头皮答应试试', eff:{will:1,major:1}},
+        {text:'一边备赛一边做其他准备，不把所有鸡蛋放一个篮子', eff:{practice:2}},
+        {text:'婉拒并推荐同学去，自己帮忙做后勤支持', eff:{social:2}}
+      ]
+    },
+    // Q14
+    {
+      ctx:'🌅 站在起霞坡上，夕阳把南师校园染成金色。大三结束了，你必须做出选择——',
+      q:'接下来你走哪条路？',
+      opts:[
+        {text:'考研深造——冲击更高的学术平台', eff:{academic:3,will:1}, trig:'path-graduate'},
+        {text:'全力申请国外院校——准备作品集和语言', eff:{vision:3,major:2}, trig:'path-abroad'},
+        {text:'直接就业——去设计公司/大厂当牛马', eff:{practice:3,social:1}, trig:'path-job'},
+        {text:'考教资/考公——追求一份稳定的体制内工作', eff:{practice:2,will:1}, trig:'path-teacher'}
+      ]
+    },
+    // Q15
+    {
+      ctx:'⏰ 毕业倒计时100天。招聘会、申请截止日、考研冲刺……所有事情堆在了一起。',
+      q:'你的备战状态是？',
+      opts:[
+        {text:'全力冲刺——每天泡在工作室和图书馆', eff:{will:2,major:2}},
+        {text:'按部按班——制定计划稳步推进', eff:{practice:2,academic:1}},
+        {text:'借力而行——利用老师和校友资源走内推', eff:{social:2,practice:1}},
+        {text:'压力太大——开始逃避和拖延……', eff:{will:-2}}
+      ]
+    },
+    // Q16
+    {
+      ctx:'🌪️ 创作陷入瓶颈。你走在梧桐大道上，落叶铺了一地——怎么都找不到状态。',
+      q:'你如何突破瓶颈？',
+      opts:[
+        {text:'出去看展、旅行，换个环境找灵感', eff:{vision:2,major:1}},
+        {text:'找导师和同学深度交流，获取反馈', eff:{social:2,major:1}},
+        {text:'咬牙死磕——不破楼兰终不还', eff:{will:3}},
+        {text:'战略转移——先做别的方向，不在一棵树上吊死', eff:{practice:1,vision:1}}
+      ]
+    },
+    // Q17
+    {
+      ctx:'🎨 采月湖畔的工作室里，毕业创作的白板正对着你。这是四年来最重要的作品。',
+      q:'你选择的创作方向是？',
+      opts:[
+        {text:'关注社会议题——用艺术表达公共关怀', eff:{academic:2,vision:2}},
+        {text:'深入自我内心——做一次极私密的自我表达', eff:{major:2,will:1}},
+        {text:'商业与艺术结合——考虑市场的接受度', eff:{practice:2,major:1}},
+        {text:'实验性跨媒体——挑战传统艺术的边界', eff:{vision:2,major:2}}
+      ]
+    },
+    // Q18
+    {
+      ctx:'💼 实习第三周，领导当着全组的面否了你的设计方案。会议室里安静得可怕。',
+      q:'你如何应对职场的第一道坎？',
+      opts:[
+        {text:'虚心接受——在修改中学习商业设计的逻辑', eff:{practice:2,will:1}},
+        {text:'据理力争——完整阐述自己的设计理念', eff:{will:2,major:1}},
+        {text:'私下请教资深同事——了解行业里的潜规则', eff:{social:2,practice:1}},
+        {text:'表面答应修改——内心已经在看下一家', eff:{practice:1}}
+      ]
+    },
+    // Q19
+    {
+      ctx:'📱 手机震动。你低头一看——一条改变命运的消息。',
+      q:'你收到的是——',
+      opts:[
+        {text:'心仪公司的录用通知书 ✨', eff:{practice:3,wealth:3}, trig:'good-job'},
+        {text:'考研复试通过 / 留学offer来了 ✨', eff:{academic:3,vision:2}, trig:'good-school'},
+        {text:'什么都没有收到完蛋了…… 😰', eff:{will:-2}, trig:'bad-nothing'},
+        {text:'创业项目获得学校孵化基金支持 ✨', eff:{vision:2,practice:2}, trig:'good-startup'}
+      ]
+    },
+    // Q20
+    {
+      ctx:'🎓 毕业典礼在体育中心举行。学士帽的流苏从右拨到左。聚光灯打在你身上——',
+      q:'你的毕业感言主题是——',
+      opts:[
+        {text:'"艺术让我成为了更好的人" —— 感恩', eff:{academic:1,vision:1,social:1}},
+        {text:'"感谢每一次没有放弃的自己" —— 坚持', eff:{will:3}},
+        {text:'"世界很大，我们江湖再见" —— 洒脱', eff:{social:2,vision:1}},
+        {text:'"路虽远，行则将至" —— 励志', eff:{will:2,major:1}}
+      ]
+    }
+  ],
+
+  // Fine art path (replaces Q11-Q14, Q18)
+  fineArt: [
+    // FA-Q11 replace
+    {
+      ctx:'🖌️ 全国美展江苏省选拔开始了！美院公告栏前围满了人——这是一个含金量极高的展览机会。',
+      q:'你如何把握这个机会？',
+      opts:[
+        {text:'投入全部精力备战——这是一个被看见的绝佳舞台', eff:{major:2,will:2}},
+        {text:'申请艺术家驻留项目——换个环境激发新灵感', eff:{vision:2,major:2}},
+        {text:'跟随导师参与集体创作课题——学习团队协作', eff:{academic:2,major:1}},
+        {text:'去敦煌/西藏采风——从传统文化里汲取养分', eff:{vision:3,will:1}}
+      ]
+    },
+    // FA-Q12 replace
+    {
+      ctx:'🖼️ 你在工作室里整理这学期的作品，准备投稿几个青年艺术节。但总感觉差了点什么——',
+      q:'你觉得自己的创作最需要提升的是——',
+      opts:[
+        {text:'技法与基本功——打好扎实的表达基础', eff:{major:2,academic:1}},
+        {text:'观念与思想深度——让作品有更厚的内核', eff:{vision:2,major:1}},
+        {text:'跨媒介实验——尝试更多元的表达方式', eff:{practice:1,major:1,vision:1}},
+        {text:'建立个人风格——形成独一无二的艺术语言', eff:{major:2,will:2}}
+      ]
+    },
+    // FA-Q13 replace
+    {
+      ctx:'🏆 导师在国际青年艺术大赛的推荐表上写下了你的名字。这是一个走向国际舞台的机会。',
+      q:'你的态度是——',
+      opts:[
+        {text:'全力以赴备赛——这是纯艺学生难得的跳板', eff:{major:2,vision:2}},
+        {text:'担心水平不够——但还是硬着头皮答应试试', eff:{will:1,major:1}},
+        {text:'一边备赛一边联系画廊——为自己的未来铺路', eff:{practice:2}},
+        {text:'婉拒并推荐同学去——自己帮忙做后勤', eff:{social:2}}
+      ]
+    },
+    // FA-Q14 replace
+    {
+      ctx:'🌅 站在起霞坡上，夕阳把南师校园染成金色。大三结束，作为一名纯艺学生——',
+      q:'你选择哪条路？',
+      opts:[
+        {text:'考研深造——用学历为自己增加竞争力', eff:{academic:3,will:1}, trig:'path-graduate'},
+        {text:'全力申请国外艺术院校——出去开眼界', eff:{vision:3,major:2}, trig:'path-abroad'},
+        {text:'直接就业——去画廊/美术馆/艺术机构', eff:{practice:3,social:1}, trig:'path-job'},
+        {text:'成为独立艺术家——自由创作，自负盈亏', eff:{major:2,will:2}, trig:'path-independent'}
+      ]
+    },
+    // FA-Q18 replace
+    {
+      ctx:'🔥 你的毕业作品在学院预展上引起了争议——有人觉得是杰作，有人直言"看不懂"。',
+      q:'面对争议，你的态度是——',
+      opts:[
+        {text:'坚持自我——艺术不需要所有人都理解', eff:{will:2,major:2}},
+        {text:'反思调整——尝试在自我表达和观众之间搭桥', eff:{practice:2,vision:1}},
+        {text:'请教导师——听取权威的专业意见', eff:{social:2,major:1}},
+        {text:'写一篇创作阐述——用文字解释自己的理念', eff:{academic:2,will:1}}
+      ]
+    }
+  ]
+};
+
+// ===================== ENDINGS =====================
+const ENDINGS = {
+  'artist-star': {
+    icon:'🌟', title:'艺术新星', color:'#d4b878',
+    subtitle:'你的作品开始在艺术界崭露头角',
+    desc: s => `四年前走进仙林的那个秋天，你选择了用艺术说话。
+如今，你的作品在展览上获得了业内关注，有画廊向你伸出了橄榄枝。
+你明白，这条路才刚刚开始——但你已经迈出了最关键的一步。`
+  },
+  'design-elite': {
+    icon:'💼', title:'设计精英', color:'#4a90d9',
+    subtitle:'你进入了一流的互联网大厂，用创意改变世界',
+    desc: s => `从南师美院通宵工作室到顶级设计公司的工位，你用了四年。
+那些被否了又改、改了又否的方案，最终都变成了作品集里最闪亮的作品。
+你证明了——艺术生的价值，不仅在于创作，更在于创造。`
+  },
+  'graduate-school': {
+    icon:'🎓', title:'学术深造', color:'#7eb8a0',
+    subtitle:'你考入了理想院校继续攻读硕士',
+    desc: s => `考研成绩出来的那一刻，你知道所有的早起和熬夜都值得了。
+从随园走向更高的学术平台，你将在艺术的道路上走得更远。
+也许有一天，你会回到这里——成为站在讲台上的那个人。`
+  },
+  'study-abroad': {
+    icon:'🌍', title:'国际视野', color:'#b895c9',
+    subtitle:'你踏上了海外留学之路',
+    desc: s => `跨越时区与国界，你的艺术版图从此扩展到世界。
+在异国的美术馆、工作室和街头，你找到了全新的语言。
+这段经历，将让你的创作拥有更丰富的维度。`
+  },
+  'teacher': {
+    icon:'👩‍🏫', title:'人民教师', color:'#e8a87c',
+    subtitle:'你成为了一名美术教师，点亮更多孩子的艺术梦想',
+    desc: s => `站在讲台上的那一刻，你想起四年前美院新生见面会上的自己。
+从学生到老师，身份的转变让你明白——教育不是灌输，而是点燃火焰。
+你正在做着最有意义的事。`
+  },
+  'life-winner': {
+    icon:'💑', title:'艺术人生赢家', color:'#e8856b',
+    subtitle:'事业与爱情双丰收，TA在台下为你鼓掌',
+    desc: s => `四年前图书馆里的那次相遇，没想到会走到今天。
+你们一起看展、一起创作、一起经历了最好的大学时光。
+毕业了，你们的故事还在继续——🌙`
+  },
+  'independent-artist': {
+    icon:'✨', title:'独立艺术家', color:'#d4b878',
+    subtitle:'你成为了一名自由创作的独立艺术家',
+    desc: s => `你选择了最艰难但也最自由的路——独立艺术创作。
+没有固定薪水，没有KPI，但有无限的可能。
+这条路不好走，但你知道——真正的艺术，从来都不走捷径。`
+  },
+  'normal': {
+    icon:'🎈', title:'平凡毕业', color:'#aaa',
+    subtitle:'没有惊天动地，但每一步都踏实',
+    desc: s => `没有成为最耀眼的那一个，也没有跌入谷底。
+你按时修满了学分，完成了毕业创作，拿到了毕业证。
+未来还在迷雾中，但平凡也是一种踏实的力量。
+只是如果再来一次，或许可以再勇敢一点。`
+  },
+  'bad-delay': {
+    icon:'⚠️', title:'延毕', color:'#d9534f',
+    subtitle:'学分未修满 / 毕业创作未通过',
+    desc: s => `当同学们穿着学士服在合影时，你坐在空荡荡的工作室里。
+还有几门课需要重修，毕业创作也要重新来过。
+四年的时光仿佛被按下了暂停键。
+但也许——这只是你人生中迟来的一课。`
+  },
+  'unemployed': {
+    icon:'❌', title:'毕业即失业', color:'#d9534f',
+    subtitle:'简历石沉大海，未来一片迷茫',
+    desc: s => `毕业典礼那天，你强颜欢笑拍了合照。
+身边的同学有的读研、有的进了大厂、有的去了国外。
+而你，投出的几十份简历像扔进了大海，没有回音。`
+  },
+  'struggling-artist': {
+    icon:'💔', title:'失意艺术家', color:'#d9534f',
+    subtitle:'坚持艺术理想，却难以为继',
+    desc: s => `你选择了纯艺术的道路，但现实比想象中更骨感。
+没有稳定收入，作品也少有人问津。
+你开始怀疑——艺术到底能不能当饭吃？
+也许，理想和现实之间，还需要一座叫"生存"的桥。`
+  }
+};
+
+// ===================== STATE =====================
+let st = {
+  majorId:null, majorName:'', stats:{}, qIndex:0,
+  sel:null, flags:{}, history:[], isFineArt:false
+};
+
+// ===================== RENDER =====================
+function renderMajors() {
+  document.getElementById('major-select').innerHTML = MAJORS.map(m =>
+    `<button class="major-btn" data-id="${m.id}" onclick="selMajor('${m.id}')">
+      <span class="icon">${m.icon}</span>
+      <span class="name">${m.name}</span>
+      <span class="desc">${m.desc}</span>
+    </button>`
+  ).join('');
+}
+
+function selMajor(id) {
+  document.querySelectorAll('.major-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelector(`.major-btn[data-id="${id}"]`).classList.add('selected');
+  const m = MAJORS.find(x=>x.id===id); st.majorId=id; st.majorName=m.name;
+  document.getElementById('start-btn').disabled=false;
+}
+
+function startGame() {
+  if(!st.majorId) return;
+  st.stats=initStats(st.majorId); st.qIndex=0; st.sel=null; st.flags={}; st.history=[];
+  st.isFineArt = st.majorId==='fine-art';
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('result-screen').style.display='none';
+  document.getElementById('game-screen').style.display='flex';
+  renderStats(); renderQ();
+}
+
+function renderStats() {
+  document.getElementById('stats-bar').innerHTML = Object.keys(STAT_META).map(k => {
+    const m=STAT_META[k]; const v=st.stats[k]||0; const pct=Math.min(v/38*100,100);
+    return `<div class="stat-item">
+      <span class="label">${m.label}</span>
+      <span class="value" id="sv-${k}">${v}</span>
+      <div class="stat-bar"><div class="stat-bar-inner" style="width:${pct}%;background:${m.color}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function getQ(idx) {
+  const shared = Q.shared;
+  if(idx < 10) return shared[idx];
+  const isFA = st.isFineArt || st.flags['major-fine'];
+  const faIdx = idx - 11; 
+  if(isFA && idx >=11 && idx <= 13) return Q.fineArt[faIdx];
+  if(isFA && idx === 17) return Q.fineArt[4]; 
+  return Q.standard[idx - 10];
+}
+
+function renderQ() {
+  const q = getQ(st.qIndex);
+  if(!q) { showResult(); return; }
+  st.sel = null;
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('q-num').textContent = st.qIndex + 1;
+  document.getElementById('progress-fill').style.width = `${((st.qIndex+1)/20)*100}%`;
+
+  const seasons = ['🍂 大一·秋','🍂 大一·秋','🌸 大一·春','🌸 大一·春','🍃 大二·秋','🍃 大二·秋',
+    '☀️ 大二·夏','☀️ 大二·夏','🍁 大二·秋','🍁 大二·秋','🌻 大二·夏','🌻 大二·夏',
+    '🌻 大二·夏','🌻 大二·夏','🌅 大三·秋','🌅 大三·秋','🌅 大三·秋','🌅 大三·秋',
+    '🌆 大四·春','🌆 大四·春'];
+  const season = seasons[st.qIndex] || '';
+  document.getElementById('major-badge').innerHTML =
+    `${MAJORS.find(m=>m.id===st.majorId).icon} ${st.majorName} <span class="season">${season}</span>`;
+
+  document.getElementById('q-context').innerHTML = q.ctx;
+  document.getElementById('q-title').textContent = q.q;
+
+  document.getElementById('option-list').innerHTML = q.opts.map((o,i) =>
+    `<button class="option-btn" onclick="selOpt(${i})">
+      <span class="opt-label">${LABELS[i]}.</span>
+      <span class="opt-text">${o.text}</span>
+    </button>`
+  ).join('');
+
+  const area = document.getElementById('q-area');
+  const opts = document.getElementById('option-list');
+  area.classList.remove('fade-in'); opts.classList.remove('fade-in');
+  void area.offsetWidth;
+  area.classList.add('fade-in'); opts.classList.add('fade-in');
+}
+
+function selOpt(idx) {
+  const q = getQ(st.qIndex); if(!q) return;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.classList.remove('selected'));
+  const btn = btns[idx];
+  if(!btn) return;
+  btn.classList.add('selected');
+  st.sel = idx;
+  document.getElementById('next-btn').disabled = false;
+}
+
+function nextQ() {
+  if(st.sel===null) return;
+  const q = getQ(st.qIndex); const opt = q.opts[st.sel];
+  Object.entries(opt.eff).forEach(([k,v])=>{ st.stats[k]=(st.stats[k]||0)+v; });
+  st.history.push({idx:st.qIndex, optIdx:st.sel, eff:opt.eff});
+  if(opt.trig) st.flags[opt.trig]=true;
+  if(st.qIndex === 9 && opt.trig === 'major-fine') st.isFineArt = true;
+  renderStats();
+  Object.keys(opt.eff).forEach(k => {
+    const el = document.getElementById(`sv-${k}`);
+    if(el) { el.classList.add('pulse'); setTimeout(()=>el.classList.remove('pulse'), 400); }
+  });
+  st.qIndex++;
+  st.qIndex >= 20 ? showResult() : renderQ();
+}
+
+// ===================== ENDING =====================
+function getEnding() {
+  const s = st.stats; const f = st.flags;
+  const mid = st.majorId;
+  const diffBonus = (mid==='fine-art'||f['major-fine']) ? 3 : (mid==='environment' ? 2 : 0);
+  const willDiff = (mid==='fine-art'||f['major-fine']) ? 2 : (mid==='environment' ? 1 : 0);
+
+  if((s.academic||0) < 12 + willDiff && (s.will||0) < 12) return 'bad-delay';
+  if((s.practice||0) < 14 + diffBonus && (s.major||0) < 14 + diffBonus
+     && !f['good-job'] && !f['good-school'] && !f['good-startup']) return 'unemployed';
+  if((mid==='fine-art'||f['major-fine']) && (s.major||0)>=18 && (s.practice||0)<12
+     && !f['path-abroad'] && !f['path-job'] && !f['good-job']) return 'struggling-artist';
+
+  if(f['love']) {
+    const ok = (s.practice||0)>=20 || (s.academic||0)>=20 || (s.major||0)>=22;
+    if(ok) return 'life-winner';
+  }
+  if((mid==='fine-art'||f['major-fine']) && f['path-independent']) return 'independent-artist';
+  if((s.major||0) >= 22+diffBonus && (s.vision||0) >= 22 && (mid!=='fine-art'||f['path-job']||f['path-abroad'])) return 'artist-star';
+  if((s.practice||0) >= 24+diffBonus && (s.major||0) >= 20+diffBonus) return 'design-elite';
+  if(f['path-abroad'] && (s.vision||0) >= 20) return 'study-abroad';
+  if(f['path-graduate'] && (s.academic||0) >= 22) return 'graduate-school';
+  if(f['path-teacher'] || ((s.academic||0)>=16 && (s.practice||0)>=16)) return 'teacher';
+
+  return 'normal';
+}
+
+function showResult() {
+  document.getElementById('game-screen').style.display='none';
+  const rid = getEnding(); const end = ENDINGS[rid];
+  const bad = ['bad-delay','unemployed','struggling-artist'].includes(rid);
+  const c = document.getElementById('result-screen');
+  c.style.display='block'; c.className='fade-in';
+  c.innerHTML = `
+    <div class="result-icon">${end.icon}</div>
+    <div class="result-title" style="color:${bad?'#d9534f':end.color}">${end.title}</div>
+    <div class="result-subtitle">${end.subtitle}</div>
+    <div style="margin:8px 0;font-size:13px;color:#aaa;">
+      ${MAJORS.find(m=>m.id===st.majorId).icon} ${st.majorName} · 南京师范大学美术学院
+    </div>
+    <div class="result-stats">
+      ${Object.keys(STAT_META).map(k =>
+        `<div class="result-stat">
+          <div class="rs-label">${STAT_META[k].label}</div>
+          <div class="rs-value" style="color:${STAT_META[k].color}">${st.stats[k]||0}</div>
+        </div>`
+      ).join('')}
+    </div>
+    <div class="result-desc">${end.desc(st).replace(/\n/g,'<br>')}</div>
+    <div class="history-panel">
+      <strong>📜 四年回顾</strong><br>
+      ${st.history.map((h,i)=>`${i+1}. ${(getQ(h.idx)?.q||'').slice(0,22)}… → ${LABELS[h.optIdx]}`).join('<br>')}
+    </div>
+    <button class="restart-btn" onclick="resetGame()">🔄 开启新人生</button>
+  `;
+}
+
+// ============ 找到这段代码，整体替换为下面的简单版 ============
+function resetGame() {
+    // 核心：直接重载当前页面，利用浏览器的原生刷新完美解决所有样式错位与缓存
+    window.location.reload(); 
+}
+
+// ===================== INIT =====================
+renderMajors();
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('next-btn').addEventListener('click', nextQ);
+document.addEventListener('keydown', e => {
+  if(e.key>='1'&&e.key<='4') {
+    const i=parseInt(e.key)-1; const b=document.querySelectorAll('.option-btn');
+    if(b[i]) b[i].click();
+  }
+  if(e.key==='Enter'||e.key===' ') {
+    const n=document.getElementById('next-btn');
+    if(!n.disabled) n.click();
+  }
+});
+console.log('🎨 南师美院·模拟人生 - 橙光版 loaded');
+// =========================================================
+//                  鼠标点击火花特效 (ClickSpark)
+// =========================================================
+(function() {
+    const canvas = document.getElementById('clickSparkCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // 🌟 你可以在这里自由调整火花的配置参数（对应你给的 React Props）
+    const config = {
+        sparkColor: '#134836', // 火花颜色（这里我为你改成了适配国风项目的深墨绿，你也可以改成 '#fff' 白色）
+        sparkSize: 11,         // 火花线条的初始长度
+        sparkRadius: 25,       // 火花飞散的半径距离
+        sparkCount: 8,         // 每次点击产生的火花线条数量
+        duration: 400,         // 动画持续时间（毫秒）
+        extraScale: 1.0        // 扩散距离倍率
+    };
+
+    let sparks = [];
+
+    // 自动让 Canvas 铺满浏览器视口
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // 缓动函数：ease-out (模仿 React 里的默认缓动)
+    function easeOut(t) {
+        return t * (2 - t);
+    }
+
+    // 核心渲染循环
+    function draw(timestamp) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        sparks = sparks.filter(spark => {
+            const elapsed = timestamp - spark.startTime;
+            if (elapsed >= config.duration) {
+                return false; // 动画结束，移除该火花
+            }
+
+            const progress = elapsed / config.duration;
+            const eased = easeOut(progress);
+
+            // 计算火花的扩散位置和实时长度
+            const distance = eased * config.sparkRadius * config.extraScale;
+            const lineLength = config.sparkSize * (1 - eased);
+
+            const x1 = spark.x + distance * Math.cos(spark.angle);
+            const y1 = spark.y + distance * Math.sin(spark.angle);
+            const x2 = spark.x + (distance + lineLength) * Math.cos(spark.angle);
+            const y2 = spark.y + (distance + lineLength) * Math.sin(spark.angle);
+
+            // 绘制单条火花线
+            ctx.strokeStyle = config.sparkColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            return true;
+        });
+
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+
+    // 监听全局点击事件
+    window.addEventListener('click', (e) => {
+        const now = performance.now();
+        const newSparks = Array.from({ length: config.sparkCount }, (_, i) => ({
+            x: e.clientX,
+            y: e.clientY,
+            angle: (2 * Math.PI * i) / config.sparkCount,
+            startTime: now
+        }));
+
+        sparks.push(...newSparks);
+    });
+})();
+</script>
+</body>
+</html>
